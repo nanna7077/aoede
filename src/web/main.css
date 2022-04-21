@@ -1,0 +1,110 @@
+@font-face {
+    font-family: 'OpenSans-Regular';
+    src: url('OpenSans-Regular/OpenSans-Regular.ttf') format('truetype'), url('OpenSans-Regular/OpenSans-Regular.woff2') format('woff2'), url('OpenSans-Regular/OpenSans-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+:root {
+    --border-radius: 10px;
+    --glass-bg: rgba(255, 255, 255, 0.6);
+}
+
+
+/* @media (prefers-color-scheme: dark) {
+     :root {
+        --glass-bg: rgba(0, 0, 0, 0.4);
+    }
+} */
+
+html {
+    height: 100%;
+}
+
+body {
+    overflow: hidden;
+}
+
+.bg {
+    position: absolute;
+    z-index: 0;
+    min-width: 100%;
+    min-height: 100%;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(170deg, #c8ecdc, #85ab9a);
+}
+
+.app {
+    position: absolute;
+    font-family: 'OpenSans-Regular';
+    z-index: 1;
+    min-width: 100%;
+    min-height: 100%;
+    left: 0;
+    right: 0;
+}
+
+.albumart-container {
+    margin-top: 2vh;
+    max-height: 18vh;
+    margin-bottom: 1vh;
+    border-radius: var(--border-radius);
+    text-align: center;
+}
+
+.albumart {
+    background-color: var(--glass-bg);
+    max-width: 80%;
+    max-height: 90%;
+    padding: .6% .6% .6% .6%;
+}
+
+.controls-container {
+    max-height: 10vh;
+    margin-top: 3%;
+    margin-left: 10%;
+    margin-right: 10%;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.controlbutton {
+    width: 25px;
+    border-radius: 100%;
+    padding: 1.1% 1.1% 1.1% 1.1%;
+    background-color: var(--glass-bg);
+    cursor: pointer;
+}
+
+.controlbutton:hover {
+    filter: brightness(.8);
+}
+
+.title,
+.album,
+.artist {
+    text-align: center;
+}
+
+.title {
+    margin-top: 3%;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.album {
+    margin-top: 1%;
+}
+
+.album,
+.artist {
+    font-size: .9rem;
+}
+
+#positionslider {
+    width: 100%;
+    background: var(--glass-bg);
+}
