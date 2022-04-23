@@ -6,16 +6,10 @@
 }
 
 :root {
-    --border-radius: 10px;
-    --glass-bg: rgba(255, 255, 255, 0.6);
+    --border-radius: 5px;
+    --glass-bg: rgba(255, 255, 255, 0.3);
+    --glass-bg-light: rgba(255, 255, 255, 0.1);
 }
-
-
-/* @media (prefers-color-scheme: dark) {
-     :root {
-        --glass-bg: rgba(0, 0, 0, 0.4);
-    }
-} */
 
 html {
     height: 100%;
@@ -34,7 +28,7 @@ body {
     top: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(170deg, #c8ecdc, #85ab9a);
+    background: linear-gradient(170deg, #c8dcec, #8596ab);
 }
 
 .app {
@@ -45,26 +39,21 @@ body {
     min-height: 100%;
     left: 0;
     right: 0;
-}
-
-.albumart-container {
-    margin-top: 2vh;
-    max-height: 18vh;
-    margin-bottom: 1vh;
-    border-radius: var(--border-radius);
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
 }
 
 .albumart {
+    border-radius: var(--border-radius);
     background-color: var(--glass-bg);
-    max-width: 80%;
-    max-height: 90%;
     padding: .6% .6% .6% .6%;
+    height: 35vh;
+    width: 35vh;
 }
 
 .controls-container {
     max-height: 10vh;
-    margin-top: 3%;
     margin-left: 10%;
     margin-right: 10%;
     display: flex;
@@ -90,14 +79,11 @@ body {
 }
 
 .title {
-    margin-top: 3%;
     font-size: 1.2rem;
     font-weight: 600;
 }
 
-.album {
-    margin-top: 1%;
-}
+.album {}
 
 .album,
 .artist {
@@ -106,5 +92,46 @@ body {
 
 #positionslider {
     width: 100%;
+    background: var(--glass-bg);
+}
+
+.expandedContent {
+    margin-top: 4%;
+    background: var(--glass-bg);
+    border-radius: var(--border-radius);
+    margin-left: 5%;
+    margin-right: 5%;
+    width: 90%;
+    height: 22vh;
+    padding: .5% .5% .5% .5%;
+    font-size: .8rem;
+    text-align: center;
+    overflow-y: scroll !important;
+}
+
+#playlist {
+    display: none;
+}
+
+.expandedContent-title {
+    font-size: .9rem;
+    font-weight: bold;
+    margin-top: .5%;
+    margin-bottom: 1.2%;
+}
+
+.expandedContent-row {
+    margin-top: 1.5%;
+    margin-bottom: 1.5%;
+    background: var(--glass-bg-light);
+    cursor: pointer;
+    padding: 1% 1% 1% 1%;
+}
+
+.expandedContent-row:hover {
+    background: var(--glass-bg);
+}
+
+.expandedContent-row-selected {
     background: var(--glass-bg);
 }
