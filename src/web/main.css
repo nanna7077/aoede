@@ -74,7 +74,8 @@ body {
 
 .title,
 .album,
-.artist {
+.artist,
+.time {
     text-align: center;
 }
 
@@ -88,6 +89,11 @@ body {
 .album,
 .artist {
     font-size: .9rem;
+}
+
+.time {
+    margin-top: .5%;
+    margin-bottom: .5%;
 }
 
 #positionslider {

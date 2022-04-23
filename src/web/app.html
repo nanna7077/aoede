@@ -15,6 +15,7 @@
             <div class="title" id="title">Nothing's playing right now :(</div>
             <div class="album" id="album"></div>
             <div class="artist" id="artist"></div>
+            <div class="time" id="time">00:00/00:00</div>
             <div class="controls-container" style="margin-top: 10%;">
                 <img class="controlbutton" src="prev.png" onclick="pywebview.api.prev()" id="prevbutton">
                 <img class="controlbutton" src="play.png" onclick="pywebview.api.play()" id="playbutton" style="display: none;">
@@ -42,14 +43,19 @@
 </body>
 
 <script>
+    function fmtMSS(time) {
+        return Math.floor(time / 60) + ':' + ('0' + Math.floor(time % 60)).slice(-2)
+    }
+
     var seek_setInterval = setInterval(() => {
         pywebview.api.seekPosition().then(seek => {
             if (seek.position == -1) {
                 return
             }
             document.getElementById("positionslider").value = parseInt((seek.position / seek.total) * 100);
+            document.getElementById("time").innerText = fmtMSS(seek.position) + " / " + fmtMSS(seek.total);
         })
-    }, 3000)
+    }, 1000)
 
     function setSeek(element, position) {
         pywebview.api.seekPosition().then(seek => {
@@ -63,6 +69,30 @@
             });
         })
     }
+</script>
+
+<script>
+    window.addEventListener('keydown', function(e) {
+        if (e.key == ' ' || e.key == 'Spacebar') {
+            if (document.getElementById('playbutton').style.display == "block") {
+                pywebview.api.play();
+            }
+            if (document.getElementById('pausebutton').style.display == "block") {
+                pywebview.api.pause();
+            }
+            e.preventDefault();
+            return;
+        }
+        if (e.key == 's') {
+            pywebview.api.addToPlaylist();
+        }
+        if (e.key == 'n') {
+            pywebview.api.next();
+        }
+        if (e.key == 'p') {
+            pywebview.api.prev();
+        }
+    })
 </script>
 
 </html>
