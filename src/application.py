@@ -1,7 +1,7 @@
 import os
 import random
 import tempfile
-from tkinter.filedialog import askopenfilenames
+from tkinter.filedialog import askopenfilenames, askdirectory
 import webview
 from just_playback import Playback
 import threading
@@ -80,11 +80,19 @@ class JSApi:
     playlistVisible=False
 
     def addToPlaylist(self):
-        filenames=askopenfilenames(filetypes=(("Audio Files", ".wav .ogg .mp3 .flac .aac .wma"),   ("All Files", "*.*")))
+        filenames=askopenfilenames(filetypes=(("Audio Files", ".wav .ogg .mp3 .flac .aac .wma"), ("All Files", "*.*")))
         if len(filenames)!=0:
             for f in filenames:
                 playlist.add(f)
         self.refreshPlaylist()
+    
+    def addFolder(self):
+        folderpath=askdirectory()
+        if len(folderpath)!=0:
+            for (dirpath, dirnames, filenames) in os.walk(folderpath):
+                for file in filenames:
+                    if file.split('.')[-1].lower() in ["wav", "ogg", "mp3", "flac", "aac", "wma"]:
+                        playlist.add(os.path.join(dirpath, file))
     
     def play(self):
         if not playback.paused:
