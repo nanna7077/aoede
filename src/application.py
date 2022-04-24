@@ -78,6 +78,7 @@ class Playlist:
 
 class JSApi:
     playlistVisible=False
+    optionsVisible=False
 
     def addToPlaylist(self):
         filenames=askopenfilenames(filetypes=(("Audio Files", ".wav .ogg .mp3 .flac .aac .wma"), ("All Files", "*.*")))
@@ -157,6 +158,17 @@ class JSApi:
         else:
             window.evaluate_js('document.getElementById("playlist").style.display="none";')
             self.playlistVisible=False
+    
+    def toggleOptions(self):
+        if self.playlistVisible:
+            window.evaluate_js('document.getElementById("playlist").style.display="none";')
+            self.playlistVisible=False
+        if not self.optionsVisible:
+            window.evaluate_js('document.getElementById("options").style.display="block";')
+            self.optionsVisible=True
+        else:
+            window.evaluate_js('document.getElementById("options").style.display="none";')
+            self.optionsVisible=False
 
 def player():
     global playlist

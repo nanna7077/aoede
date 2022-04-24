@@ -115,7 +115,8 @@ body {
     overflow-y: scroll !important;
 }
 
-#playlist {
+#playlist,
+#options {
     display: none;
 }
 
@@ -140,41 +141,4 @@ body {
 
 .expandedContent-row-selected {
     background: var(--glass-bg);
-}
-
-#context-menu {
-    --mouse-x: 0;
-    --mouse-y: 0;
-    z-index: 3;
-    display: none;
-    position: fixed;
-    margin: 0;
-    left: 0;
-    top: 0;
-    transform: translateX(min(var(--mouse-x), calc(100vw - 100%))) translateY(min(var(--mouse-y), calc(100vh - 100%)));
-}
-
-#context-menu,
-li {
-    list-style-type: none;
-    list-style-position: inside;
-    margin: 0;
-    padding: 0;
-}
-
-#context-menu {
-    background: var(--glass-bg);
-    padding: 1.2% 1.2% 1.2% 1.2%;
-    width: 35%;
-}
-
-#context-menu li {
-    text-align: center;
-    font-size: .9rem;
-    margin-top: 3%;
-    cursor: pointer;
-}
-
-#context-menu li:hover {
-    background: var(--glass-bg-light);
 }
