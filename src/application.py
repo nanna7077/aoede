@@ -79,6 +79,10 @@ class Playlist:
 class JSApi:
     playlistVisible=False
     optionsVisible=False
+    aboutWindow=None
+
+    def showAbout(self):
+        self.aboutWindow=webview.create_window('About Aoede', "web/about.html", height=300, width=300)
 
     def addToPlaylist(self):
         filenames=askopenfilenames(filetypes=(("Audio Files", ".wav .ogg .mp3 .flac .aac .wma"), ("All Files", "*.*")))
@@ -151,6 +155,9 @@ class JSApi:
         window.evaluate_js('document.getElementById("playlistContent").innerHTML=`{}`;'.format(playlistContent))
 
     def togglePlaylistView(self):
+        if self.optionsVisible:
+            window.evaluate_js('document.getElementById("options").style.display="none";')
+            self.optionsVisible=False
         if not self.playlistVisible:
             self.refreshPlaylist()            
             window.evaluate_js('document.getElementById("playlist").style.display="block";')
