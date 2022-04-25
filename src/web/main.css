@@ -142,3 +142,25 @@ body {
 .expandedContent-row-selected {
     background: var(--glass-bg);
 }
+
+@media only screen and (min-width: 600px) {
+    .albumart {
+        height: 25vh;
+        width: 25vh;
+    }
+    .expandedContent-row {
+        margin-top: 1%;
+        margin-bottom: 1%;
+    }
+}
+
+@media only screen and (min-width: 800px) {
+    .albumart {
+        height: 22vh;
+        width: 22vh;
+    }
+    .expandedContent-row {
+        margin-top: .5%;
+        margin-bottom: .5%;
+    }
+}

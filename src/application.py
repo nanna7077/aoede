@@ -204,7 +204,7 @@ playerThread.start()
 @smokesignal.on('songChanged')
 def onSongChange(song):
     api.refreshPlaylist()
-    window.evaluate_js("document.getElementById('title').innerText='{}';document.getElementById('album').innerText='{}';document.getElementById('artist').innerText='{}';".format(song.title, song.album, song.artist))
+    window.evaluate_js("document.getElementById('title').innerText=`{}`;document.getElementById('album').innerText=`{}`;document.getElementById('artist').innerText=`{}`;".format(song.title, song.album, song.artist))
     if song.cover!=None:
         window.evaluate_js("document.getElementById('albumart').src='data:image/png;base64, {}';".format(base64.b64encode(song.cover).decode()))
         dominantColor=getDominantColor(Image.open(song.coverPath))
