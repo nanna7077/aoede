@@ -1,0 +1,5 @@
+pywebview==3.6.3
+just-playback==0.1.6
+smokesignal==0.7.0
+tinytag==1.8.1
+pillow
