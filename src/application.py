@@ -1,4 +1,5 @@
 import os
+import sys
 import random
 import tempfile
 from tkinter.filedialog import askopenfilenames, askdirectory
@@ -11,13 +12,32 @@ import base64
 import time
 from colorsys import rgb_to_hls, hls_to_rgb
 from PIL import Image
+import requests
+from lyricsgenius import Genius
+from define import *
+import storage
 
-WINDOW_WIDTH=410
-WINDOW_HEIGHT=700
+genius=Genius(GENIUS_API_TOKEN)
 
 playlist=None
 playback=None
 window=None
+
+class SuppressPrint:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
+
+def getCoverFromInternet(url):
+    req=requests.get(url)
+    if req:
+        return req.content
+    else:
+        return None
 
 def adjustColorLightness(r, g, b, factor):
         h, l, s = rgb_to_hls(r / 255.0, g / 255.0, b / 255.0)
@@ -35,11 +55,28 @@ def getDominantColor(pil_img):
     dominant_color = img.getpixel((0, 0))
     return dominant_color
 
+def getGeniusSongData(title, artist):
+    song=storage.getSong(title, artist)
+    if song!=None:
+        return song, None, False
+    with SuppressPrint():
+        if artist==None:
+            song=genius.search_song(title)
+        else:
+            song=genius.search_song(title+" "+artist)
+        if song==None:
+            return None, None, False
+    try:
+        return song, getCoverFromInternet(song.song_art_image_url), True
+    except:
+        return "Lyric Not Available :("
+
 class Song:
     path=""
     title=""
     album=""
     artist=""
+    lyrics=""
     cover=None
     coverPath=""
 
@@ -48,7 +85,7 @@ class Song:
         tag=TinyTag.get(songpath, image=True)
         self.title=tag.title
         if self.title==None:
-            self.title=os.path.split(songpath)[-1].split('.')[0]
+            self.title=" ".join(os.path.split(songpath)[-1].split('.')[0:-1])
         self.album=tag.album
         if self.album==None:
             self.album="Unknown"
@@ -57,6 +94,10 @@ class Song:
             self.artist="Unknown"
         self.cover=tag.get_image()
         self.coverPath=None
+        try:
+            self.lyrics=tag.extra['lyrics']
+        except:
+            self.lyrics="Searching for lyrics..."
         if self.cover!=None:
             self.coverPath=os.path.join(tempfile.gettempdir(), self.title.strip().replace(" ", "")+"-"+str(random.randint(100,999))+".png")
             with open(self.coverPath, 'wb') as f:
@@ -82,14 +123,19 @@ class JSApi:
     aboutWindow=None
 
     def showAbout(self):
-        self.aboutWindow=webview.create_window('About Aoede', "web/about.html", height=300, width=300)
+        if not self.aboutWindow:
+            self.aboutWindow=webview.create_window('About Aoede', "web/about.html", height=300, width=300)
+        else:
+            self.aboutWindow.destroy()
+            self.aboutWindow=None
 
     def addToPlaylist(self):
         filenames=askopenfilenames(filetypes=(("Audio Files", ".wav .ogg .mp3 .flac .aac .wma"), ("All Files", "*.*")))
         if len(filenames)!=0:
             for f in filenames:
                 playlist.add(f)
-        self.refreshPlaylist()
+            smokesignal.emit('songAdded')
+            self.refreshPlaylist()
     
     def addFolder(self):
         folderpath=askdirectory()
@@ -98,6 +144,8 @@ class JSApi:
                 for file in filenames:
                     if file.split('.')[-1].lower() in ["wav", "ogg", "mp3", "flac", "aac", "wma"]:
                         playlist.add(os.path.join(dirpath, file))
+            smokesignal.emit('songAdded')
+            self.refreshPlaylist()
     
     def play(self):
         if not playback.paused:
@@ -226,8 +274,23 @@ def onPlayStatusChange(status):
     if status=="PAUSED":
         window.evaluate_js("document.getElementById('pausebutton').style.display='none';document.getElementById('playbutton').style.display='block';")
 
+@smokesignal.on('songAdded')
+def onSongAdded():
+    for song in playlist.queue:
+        if song.lyrics=="Searching for lyrics...":
+            geniusSongData, cover, t=getGeniusSongData(song.title, song.artist)
+            if geniusSongData==None:
+                continue
+            song.lyrics=geniusSongData.lyrics
+            if song.cover==None:
+                song.cover=geniusSongData.cover
+                song.coverPath=geniusSongData.coverPath
+            if t:
+                smokesignal.emit('songDataFoundGenius', geniusSongData, song.album, cover)
+
 def on_closed():
     os.kill(os.getpid(), 9)
+
 
 api=JSApi()
 window=webview.create_window("Aoede", "web/app.html", width=WINDOW_WIDTH, height=WINDOW_HEIGHT, resizable=True, frameless=False, js_api=api)
