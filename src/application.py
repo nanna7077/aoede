@@ -121,10 +121,23 @@ class JSApi:
     playlistVisible=False
     optionsVisible=False
     aboutWindow=None
+    lyricsWindow=None
+
+    def toggleLyricWindow(self):
+        if self.lyricsWindow==None:
+            self.lyricsWindow=webview.create_window('Lyrics', "web/lyrics.html", height=WINDOW_HEIGHT, width=WINDOW_WIDTH)
+            smokesignal.emit('songChanged', playlist.queue[playlist.current])
+        else:
+            try:
+                self.lyricsWindow.destroy()
+            except:
+                pass
+            self.lyricsWindow=None
 
     def showAbout(self):
         if not self.aboutWindow:
             self.aboutWindow=webview.create_window('About Aoede', "web/about.html", height=300, width=300)
+            smokesignal.emit('songChanged', playlist.queue[playlist.current])
         else:
             self.aboutWindow.destroy()
             self.aboutWindow=None
@@ -257,15 +270,38 @@ def onSongChange(song):
         window.evaluate_js("document.getElementById('albumart').src='data:image/png;base64, {}';".format(base64.b64encode(song.cover).decode()))
         dominantColor=getDominantColor(Image.open(song.coverPath))
         lightenedColor=darkenColor(r=dominantColor[0], g=dominantColor[1], b=dominantColor[2])
+        lightForeground=False
         if (lambda R, G, B: (0.2126*R)+(0.7152*G)+(0.0722*B))(dominantColor[0], dominantColor[1], dominantColor[2])>20:
             window.evaluate_js("document.getElementsByTagName('body')[0].style.color='#000000';")
         else:
             window.evaluate_js("document.getElementsByTagName('body')[0].style.color='#f5f5f5';")
+            lightForeground=True
         window.evaluate_js("document.getElementsByClassName('bg')[0].style.background='linear-gradient(170deg, rgba{}, rgb{})';".format(dominantColor, lightenedColor))
     else:
         window.evaluate_js("document.getElementById('albumart').src='data:image/png;base64, {}';".format("iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAMAAADDpiTIAAAAzFBMVEW1tbW1tbW1tbXIyMi+vr7////e3t7q6uqvr6/4+Pibm5unp6e9vb3p6emsrKytra3Dw8O6urrS0tLAwMDt7e3b29vR0dH5+fnv7+/w8PDx8fH6+vrj4+Pa2trs7Ozi4uKmpqaKiorW1taWlpaXl5fh4eGqqqq8vLyTk5Oenp6hoaGPj4+NjY3n5+eysrKZmZnd3d2RkZHLy8uwsLC/v7/FxcWdnZ22trbExMTr6+vKysro6OjZ2dmkpKSIiIj29vaQkJDMzMzk5OSlpaWmSmUvAAAAAnRSTlPs9UmPd0sAAAcMSURBVHhe7MABAQAAAAGg/D9tCJFhR9mlYwIAQBgGYHTDv2ZePDTRkKlGeQBOphgRQAAEQAAEaCUAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAiAAAhABBEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABNjfFaDOY9d++9MmozCO66EXJiKB4GRSGtaUvyE1bDoVnRxaff/vyTkzxoTZtXmUXNfv6f3wfHOH8wk4rs0NQAC+CqgBCED4NTUAAUCHG4AAfMMNQAC6ETUAAUCPG4AAtLgBCEAYUAMQAPS5AQhAGFMDEAAMuAEIAL7lBiAAz7gBCAC+4wYgABhyAxCA531qAAKA5xfUAAQA38fUAAQAo5gagADgMqYGIAC47FMDEACM+9QABADjFjUAAQCG3AAEAG1uAAKAq5gDgACwroMCUMa6DAjAg42H1AAEAEi4AQgArrgBCAAmMQEAAWBcBgSAXIAAkAsQAHIBAsAuQABOCz8lgAOAAPQSnO8FBQABuE57Ic52QwFAADrT2Rxn6zMAEICFddIlzvUspgAgABasshHOdMMBQADM1vkAZ1qSABAAi26XOO0HFgACYMUmC3FSnwWAAJitZ92T05c8AATAolenAogACIAFp3fAj0QABMCKEwGjgAWAAJwX8BMTAAGw4r+7wGsqAAJgRYSPSiIqAAJgwc84LlxzARAAW4xw3C9kAATAfsVxHTYAAmAvPhJSsAEQgNc4artgAyAA9hs3AAH4/RhARgdAAGJuAAJgb7gBCMAf3AAEYIhDRghAAFpHQsgBCMCOGoAA+IIZgACE3AAEYO7GDEAAtikhAAFIPpyvqAEIgGeEAARggrLEF4QABGCPMnNjBqCvgfmUEIAAtFCW+I4QgAAkKDMvCAEIwKQ8DPOpEQIQAJQNfEcIQABaKJulBSEAAWgfvgNsjBCAAOzLs54HhAAEoF8ejXxlhAAEoF0eLb3DCEAA9u93wFsjBCAAw/Jk62tCAAIQj99fAGlBCEAA2ocLIDNCAAJQXgBdTwtGAAJQzj/3zBgBCEBrBGCe+51RAhAA8+x65n5XkAIQgMWtu68KIwUgAGbRIjCjASAALAmAAAiAADAnAAIgAMwJgAAIAHMCIAACwJEACMBF69/oAAhAfJ9M9vjQ5Gp4wQJAAPrtS5xp3241H4AAxDeX+GT7pNkABOAiGeOhBKCxxeX4OQEIwP0YoAUgAPEbgBeAALTGIAYgAEOAGIAAXOGJCYDmj5wagOYPJwWg93+ZFwJQ5/qomFuNE4B4Tw1AAK5QsVAA6lwLVZsLQJ2bVAeQMgPQBYDtihmALgAsBaC+XaB6WSYAta2NyoW+FoDadonKJR4JQF2LUT1LjRiAdoDQpwJQ2xJUbus7YgACEOapEQMQgKVnxAAEYO5pwQtAfwUJZ742XgDaAnq+MgGoc6iUeRoIQK37ExUauHeMFoB+BAzcd1bvBCAOq8x/YwJQ917iiVkj5i8ASzypsCHzFwC7xxPqZk15/wtA0MWjG+Se7kwAmtEuxOMKe+53kQlAU/orfOzj75vCGpMAFJsuPrv5tXvasQYlABa9SvB5jXrevMdfACy4W4Z4uLm5+2phTUsArJjOBnigwbW733bMBKCJrdP/JZBY7u6rnTU0AbBg47klONNo8G76vllYmQA0lYDnve28i0PzZNub+T9Nd4U1OwEwK3ZTf1d2/baZl91uCKYvAKWBTra680OradYJjCcBKIsWbwv+ZpcOCAAAQBAAlf9Ht6AFwgbyEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEAABEECAIAACIEArARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARAAARCAnVRjUo1rBw4IAAAACADl/2lDiAw7BQlRmkgBzmH1AAAAAElFTkSuQmCC"))
         window.evaluate_js("document.getElementsByClassName('bg')[0].style.background='linear-gradient(170deg, #c8dcec, #8596ab)';")
         window.evaluate_js("document.getElementsByTagName('body')[0].style.color='#000000';")
+    if api.lyricsWindow!=None:
+        api.lyricsWindow.evaluate_js("document.getElementById('lyrics').innerText=`{}`;".format(song.lyrics))
+        if song.cover!=None:
+            api.lyricsWindow.evaluate_js("document.getElementsByClassName('bg')[0].style.background='linear-gradient(170deg, rgba{}, rgb{})';".format(dominantColor, lightenedColor))
+            if lightForeground:
+                api.lyricsWindow.evaluate_js("document.getElementsByTagName('body')[0].style.color='#f5f5f5';")
+            else:
+                api.lyricsWindow.evaluate_js("document.getElementsByTagName('body')[0].style.color='#000000';")
+        else:
+            api.lyricsWindow.evaluate_js("document.getElementsByClassName('bg')[0].style.background='linear-gradient(170deg, #c8dcec, #8596ab)';")
+            api.lyricsWindow.evaluate_js("document.getElementsByTagName('body')[0].style.color='#000000';")
+    if api.aboutWindow!=None:
+        if song.cover!=None:
+            api.aboutWindow.evaluate_js("document.getElementsByClassName('bg')[0].style.background='linear-gradient(170deg, rgba{}, rgb{})';".format(dominantColor, lightenedColor))
+            if lightForeground:
+                api.aboutWindow.evaluate_js("document.getElementsByTagName('body')[0].style.color='#f5f5f5';")
+            else:
+                api.aboutWindow.evaluate_js("document.getElementsByTagName('body')[0].style.color='#000000';")
+        else:
+            api.aboutWindow.evaluate_js("document.getElementsByClassName('bg')[0].style.background='linear-gradient(170deg, #c8dcec, #8596ab)';")
+            api.aboutWindow.evaluate_js("document.getElementsByTagName('body')[0].style.color='#000000';")
 
 @smokesignal.on('playStatus')
 def onPlayStatusChange(status):
