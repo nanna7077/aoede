@@ -60,7 +60,7 @@ def getGeniusSongData(title, artist):
     if song!=None:
         return song, None, False
     with SuppressPrint():
-        if artist==None:
+        if artist in [None, "Unknown"]:
             song=genius.search_song(title)
         else:
             song=genius.search_song(title+" "+artist)
