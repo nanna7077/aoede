@@ -10,7 +10,6 @@ rm wheels.zip
 wget https://github.com/nanna7077/just_playback/releases/download/v0.1.6/wheels.zip
 unzip wheels -d justplaybackWheels
 cd justplaybackWheels
-pwd
 for f in *; do
     echo ""
     echo ""
@@ -46,6 +45,7 @@ pip install -r requirements.txt
 echo ""
 echo "Adding Desktop files"
 echo ""
+rm /usr/share/applications/aoede.desktop
 cat > /usr/share/applications/aoede.desktop << EOL
 [Desktop Entry]
 Name=Aoede
