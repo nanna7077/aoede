@@ -143,6 +143,9 @@ class JSApi:
             self.aboutWindow=None
 
     def addToPlaylist(self):
+        if window==None:
+            return
+        # filenames=window.create_file_dialog(webview.OPEN_DIALOG, directory=os.path.expanduser("~"), allow_multiple=True, file_types=(("Audio Files", ".wav .ogg .mp3 .flac .aac .wma"), ("All Files", "*.*")))
         filenames=askopenfilenames(filetypes=(("Audio Files", ".wav .ogg .mp3 .flac .aac .wma"), ("All Files", "*.*")))
         if len(filenames)!=0:
             for f in filenames:
