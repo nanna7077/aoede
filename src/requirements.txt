@@ -3,3 +3,4 @@ just-playback==0.1.6
 smokesignal==0.7.0
 tinytag==1.8.1
 pillow
+lyricsgenius==3.0.1
